@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hair Fall Risk Predictor</title>
+    <!-- Link to Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color:rgb(121, 80, 132);
+            padding: 50px;
+        }
+        .container {
+            max-width: 600px;
+            margin-top: 50px;
+        }
+        .result {
+            margin-top: 30px;
+            padding: 20px;
+            border-radius: 8px;
+            background-color: #f1f1f1;
+        }
+        .btn-custom {
+            background-color:rgb(0, 0, 0);
+            color: white;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1 class="text-center mb-4">Hair Fall Risk Predictor</h1>
+        
+        <div class="form-group mb-3">
+            <input type="text" class="form-control" id="Age" placeholder="What is your age ?">
+        </div>
+        <div class="form-group mb-3">
+            <select class="form-control" id="Gender">
+                <option value="">Select Gender</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+            </select>
+        </div>
+        <div class="form-group mb-3">
+            <select class="form-control" id="Family_Hair_Fall">
+                <option value="">Family hair fall history?</option>
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
+            </select>
+        </div>
+        <div class="form-group mb-3">
+            <select class="form-control" id="Chronic_Illness">
+                <option value="">Chronic illness?</option>
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
+            </select>
+        </div>
+        <div class="form-group mb-3">
+            <select class="form-control" id="Stay_Late">
+                <option value="">Stay up late at night?</option>
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
+            </select>
+        </div>
+        <div class="form-group mb-3">
+            <select class="form-control" id="Sleep_Disturbance">
+                <option value="">Sleep disturbance?</option>
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
+            </select>
+        </div>
+        <div class="form-group mb-3">
+            <select class="form-control" id="Water_Issue">
+                <option value="">Water issue causing hair fall?</option>
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
+            </select>
+        </div>
+        <div class="form-group mb-3">
+            <select class="form-control" id="Hair_Chemicals">
+                <option value="">Use chemicals, hair gel or color?</option>
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
+            </select>
+        </div>
+        <div class="form-group mb-3">
+            <select class="form-control" id="Anemia">
+                <option value="">Do you have anemia?</option>
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
+            </select>
+        </div>
+        <div class="form-group mb-3">
+            <select class="form-control" id="Stress_Level">
+                <option value="">Too much stress?</option>
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
+            </select>
+         <div>
+
+        <div class="form-group mb-3">
+             <select class="form-control" id="Food_Habit">
+                    <option value="">What is your food habit?</option>
+                    <option value="Nutritious">Nutritious</option>
+                    <option value="Dependent on fast food">Dependent on fast food</option>
+                    <option value="Both">Both</option>
+            </select>
+        </div>
+        
+        <div class="text-center">
+            <button class="btn btn-custom" onclick="makePrediction()">Predict</button>
+        </div>
+
+        <div id="result" class="result"></div>
+    </div>
+    <section class="hero">
+        <div class="container">
+            <a href="{{ url_for('home') }}" class="btn btn-secondary">Back to Home</a>
+        </div>
+    </section>
+
+    <!-- Link to Bootstrap JS and dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
+    <script>
+        function makePrediction() {
+            const data = {
+                "What is your age ?": document.getElementById('Age').value,
+                "What is your gender ?": document.getElementById('Gender').value,
+                "Is there anyone in your family having a hair fall problem or a baldness issue?": document.getElementById('Family_Hair_Fall').value,
+                "Did you face any type of chronic illness in the past?": document.getElementById('Chronic_Illness').value,
+                "Do you stay up late at night?": document.getElementById('Stay_Late').value,
+                "Do you have any type of sleep disturbance?": document.getElementById('Sleep_Disturbance').value,
+                "Do you think that in your area water is a reason behind hair fall problems?": document.getElementById('Water_Issue').value,
+                "Do you use chemicals, hair gel, or color in your hair?": document.getElementById('Hair_Chemicals').value,
+                "Do you have anemia?": document.getElementById('Anemia').value,
+                "Do you have too much stress": document.getElementById('Stress_Level').value,
+                "What is your food habit": document.getElementById('Food_Habit').value
+            };
+
+            fetch('/predict', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(res => res.json())
+            .then(response => {
+                if (response.error) {
+                    document.getElementById('result').innerHTML = `<p style="color:red;">${response.error}</p>`;
+                } else {
+                    const resultHTML = `
+                        <h3 class="text-center">Prediction: ${response.prediction === 1 ? "High Risk" : "Low Risk"}</h3>
+                        <p class="text-center">Probability: ${(response.probability * 100).toFixed(2)}%</p>
+                        <h5>General Advice:</h5>
+                        <p>${response.recommendations.general}</p>
+                        <h5>Specific Recommendations:</h5>
+                        <ul>
+                            ${Object.entries(response.recommendations.specific).map(([key, tips]) => `
+                                <li><strong>${key}:</strong>
+                                    <ul>${tips.map(tip => `<li>${tip}</li>`).join('')}</ul>
+                                </li>`).join('')}
+                        </ul>
+                    `;
+                    document.getElementById('result').innerHTML = resultHTML;
+                }
+            });
+        }
+    </script>
+
+</body>
+</html>
